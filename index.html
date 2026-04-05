@@ -608,14 +608,14 @@ button:hover {
 @media (max-width: 768px) {
   .container {
     max-width: 100%;
-    border-radius: 0;
+    border-radius: 12px;   /* ← 다시 둥글게 */
+    margin: 12px;          /* ← 핵심 (여백 생성) */
   }
 
   body {
     padding: 0;
   }
 
-  /* 추가 */
   .input-box input,
   button,
   .options {
