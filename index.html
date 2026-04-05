@@ -831,12 +831,9 @@ button:hover {
   © NAVER Cloud Corp.
 </div>
 
-<!-- 기존 코드 유지 + 아래 script 부분만 교체 -->
 <script>
 let isHidden = true;
 let currentTab = "phone";
-let currentPassword = "123456"; // 초기 비밀번호
-let tempCode = "";
 
 function togglePw() {
   const pw = document.getElementById("pw");
@@ -858,120 +855,316 @@ function togglePw() {
   }
 }
 
-// ✅ 로그인 기능 수정
 function validateLogin() {
   const id = document.getElementById("loginId");
   const pw = document.getElementById("pw");
 
-  clearLoginErrors();
+  hideError("loginIdError");
+  hideError("loginPwError");
+  removeErrorBorder(id);
+  removeErrorBorder(pw);
 
   const idVal = id.value.trim();
   const pwVal = pw.value.trim();
 
-  if (idVal === "" || pwVal === "") {
-    showError("loginPwError", "아이디 또는 비밀번호가 일치하지 않습니다.");
-    addErrorBorder(pw);
+  if (idVal === "" && pwVal === "") {
+    addErrorBorder(id);
+    showError("loginIdError", "ID를 입력해주세요.");
     return;
   }
 
-  // 성공 조건
-  if (pwVal === currentPassword) {
-    showSuccess("로그인 성공");
-  } else {
-    showError("loginPwError", "아이디 또는 비밀번호가 일치하지 않습니다.");
+  if (idVal !== "" && pwVal === "") {
     addErrorBorder(pw);
+    showError("loginPwError", "비밀번호를 입력해주세요.");
+    return;
+  }
+
+  if (idVal.length <= 5 || pwVal.length <= 5) {
+    addErrorBorder(pw);
+    showError("loginPwError", "아이디 또는 비밀번호가 일치하지 않습니다.");
+    return;
   }
 }
 
-function showSuccess(text) {
-  let el = document.getElementById("loginSuccess");
-  if (!el) {
-    el = document.createElement("div");
-    el.id = "loginSuccess";
-    el.style.color = "#1f6feb";
-    el.style.marginTop = "10px";
-    el.style.textAlign = "center";
-    document.querySelector(".container").appendChild(el);
-  }
-  el.textContent = text;
+function clearLoginErrors() {
+  hideError("loginIdError");
+  hideError("loginPwError");
+  removeErrorBorder(document.getElementById("loginId"));
+  removeErrorBorder(document.getElementById("pw"));
 }
 
-// ✅ 인증번호 생성 (중복 방지)
-function generateCode() {
-  let nums = [];
-  while (nums.length < 4) {
-    let n = Math.floor(Math.random() * 10);
-    if (!nums.includes(n)) nums.push(n);
-  }
-  return nums.join("");
+function showFindView() {
+  document.getElementById("loginView").style.display = "none";
+  document.getElementById("findView").style.display = "block";
+  document.getElementById("findHelp").style.display = "block";
+  document.getElementById("footerLoginLink").style.display = "none";
 }
 
-// 인증 버튼 연결
-window.addEventListener("DOMContentLoaded", () => {
-  document.querySelectorAll(".cert-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      tempCode = generateCode();
+function showLoginView() {
+  document.getElementById("findView").style.display = "none";
+  document.getElementById("loginView").style.display = "block";
+  document.getElementById("findHelp").style.display = "none";
+  document.getElementById("footerLoginLink").style.display = "flex";
+  clearAllErrors();
+}
 
-      if (currentTab === "phone") {
-        document.getElementById("phoneVerifyInput").value = tempCode;
-      } else {
-        document.getElementById("emailVerifyInput").value = tempCode;
-      }
-    });
+function resetFindInputs() {
+  document.getElementById("accountInput").value = "";
+  document.getElementById("lastNameInput").value = "";
+  document.getElementById("firstNameInput").value = "";
+  document.getElementById("phoneInput").value = "";
+  document.getElementById("phoneVerifyInput").value = "";
+  document.getElementById("emailInput").value = "";
+  document.getElementById("emailVerifyInput").value = "";
+}
+
+function switchFindTab(type) {
+  currentTab = type;
+  const phoneTab = document.getElementById("phoneTab");
+  const emailTab = document.getElementById("emailTab");
+  const phoneForm = document.getElementById("phoneForm");
+  const emailForm = document.getElementById("emailForm");
+  const findTabs = document.getElementById("findTabs");
+
+  resetFindInputs();
+
+  if (type === "phone") {
+    phoneTab.classList.add("active");
+    emailTab.classList.remove("active");
+    phoneForm.style.display = "block";
+    emailForm.style.display = "none";
+    findTabs.classList.add("phone-active");
+    findTabs.classList.remove("email-active");
+  } else {
+    emailTab.classList.add("active");
+    phoneTab.classList.remove("active");
+    emailForm.style.display = "block";
+    phoneForm.style.display = "none";
+    findTabs.classList.add("email-active");
+    findTabs.classList.remove("phone-active");
+  }
+
+  clearAllErrors();
+}
+
+function showError(elementId, message) {
+  const el = document.getElementById(elementId);
+  if (message) {
+    const span = el.querySelector("span:last-child");
+    if (span) span.textContent = message;
+  }
+  el.classList.add("show");
+}
+
+function hideError(elementId) {
+  document.getElementById(elementId).classList.remove("show");
+}
+
+function addErrorBorder(el) {
+  el.classList.add("error-border");
+}
+
+function removeErrorBorder(el) {
+  el.classList.remove("error-border");
+}
+
+function clearAllErrors() {
+  hideError("accountError");
+  hideError("nameError");
+  hideError("phoneError");
+  hideError("emailError");
+  document.getElementById("globalError").classList.remove("show");
+
+  removeErrorBorder(document.getElementById("accountInput"));
+  removeErrorBorder(document.getElementById("lastNameInput"));
+  removeErrorBorder(document.getElementById("firstNameInput"));
+  removeErrorBorder(document.getElementById("phoneRow"));
+  removeErrorBorder(document.getElementById("emailRow"));
+}
+
+function hasAnyPhoneInput() {
+  return (
+    document.getElementById("accountInput").value.trim() !== "" ||
+    document.getElementById("lastNameInput").value.trim() !== "" ||
+    document.getElementById("firstNameInput").value.trim() !== "" ||
+    document.getElementById("phoneInput").value.trim() !== "" ||
+    document.getElementById("phoneVerifyInput").value.trim() !== ""
+  );
+}
+
+function hasAnyEmailInput() {
+  return (
+    document.getElementById("accountInput").value.trim() !== "" ||
+    document.getElementById("emailInput").value.trim() !== "" ||
+    document.getElementById("emailVerifyInput").value.trim() !== ""
+  );
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function isValidAccount(account) {
+  if (account === "") return false;
+  if (!account.startsWith("yn")) return false;
+
+  if (account.includes("@")) {
+    const parts = account.split("@");
+    if (parts.length !== 2) return false;
+    if (parts[0].trim() === "" || parts[1].trim() === "") return false;
+  }
+
+  return true;
+}
+
+function validatePhoneForm() {
+  clearAllErrors();
+
+  const account = document.getElementById("accountInput").value.trim();
+  const lastName = document.getElementById("lastNameInput").value.trim();
+  const firstName = document.getElementById("firstNameInput").value.trim();
+  const phone = document.getElementById("phoneInput").value.trim();
+
+  const anyInput = hasAnyPhoneInput();
+
+  if (!anyInput) {
+    document.getElementById("globalError").classList.add("show");
+    return false;
+  }
+
+  let valid = true;
+
+  if (!isValidAccount(account)) {
+    addErrorBorder(document.getElementById("accountInput"));
+    showError("accountError", "계정을 다시 확인해주세요.");
+    valid = false;
+  }
+
+  if (lastName === "" || firstName === "") {
+    addErrorBorder(document.getElementById("lastNameInput"));
+    addErrorBorder(document.getElementById("firstNameInput"));
+    showError("nameError", "성/이름을 입력해 주세요.");
+    valid = false;
+  }
+
+  if (phone === "") {
+    addErrorBorder(document.getElementById("phoneRow"));
+    showError("phoneError", "휴대폰 번호를 입력해 주세요.");
+    valid = false;
+  } else if (!/^\d+$/.test(phone)) {
+    addErrorBorder(document.getElementById("phoneRow"));
+    showError("phoneError", "휴대폰 번호에 숫자만 입력해 주세요.");
+    valid = false;
+  }
+
+  return valid;
+}
+
+function validateEmailForm() {
+  clearAllErrors();
+
+  const account = document.getElementById("accountInput").value.trim();
+  const email = document.getElementById("emailInput").value.trim();
+
+  const anyInput = hasAnyEmailInput();
+
+  if (!anyInput) {
+    document.getElementById("globalError").classList.add("show");
+    return false;
+  }
+
+  let valid = true;
+
+  if (!isValidAccount(account)) {
+    addErrorBorder(document.getElementById("accountInput"));
+    showError("accountError", "계정을 다시 확인해주세요.");
+    valid = false;
+  }
+
+  if (email === "") {
+    addErrorBorder(document.getElementById("emailRow"));
+    showError("emailError", "개인 이메일로 등록한 이메일 주소를 입력하세요.");
+    valid = false;
+  } else if (!isValidEmail(email)) {
+    addErrorBorder(document.getElementById("emailRow"));
+    showError("emailError", "입력된 정보를 확인하세요.");
+    valid = false;
+  }
+
+  return valid;
+}
+
+function validateFindForm() {
+  if (currentTab === "phone") {
+    validatePhoneForm();
+  } else {
+    validateEmailForm();
+  }
+}
+
+function toggleCountryDropdown(event) {
+  event.stopPropagation();
+  const dropdown = document.getElementById("countryDropdown");
+  const countryBtn = document.getElementById("countryBtn");
+  const countryArrow = document.getElementById("countryArrow");
+
+  dropdown.classList.toggle("show");
+
+  if (dropdown.classList.contains("show")) {
+    countryBtn.classList.add("open");
+    countryArrow.textContent = "▲";
+  } else {
+    countryBtn.classList.remove("open");
+    countryArrow.textContent = "▼";
+  }
+}
+
+function selectCountry(name, code, el) {
+  document.getElementById("selectedCountry").textContent = name;
+
+  document.querySelectorAll(".country-option").forEach(option => {
+    option.classList.remove("active");
+    const check = option.querySelector(".country-check");
+    if (check) check.textContent = "";
   });
+
+  el.classList.add("active");
+  el.querySelector(".country-check").textContent = "✓";
+
+  document.getElementById("countryDropdown").classList.remove("show");
+  document.getElementById("countryBtn").classList.remove("open");
+  document.getElementById("countryArrow").textContent = "▼";
+}
+
+document.addEventListener("click", function(e) {
+  const dropdown = document.getElementById("countryDropdown");
+  const btn = document.getElementById("countryBtn");
+  const loginView = document.getElementById("loginView");
+
+  if (dropdown && btn && !btn.contains(e.target) && !dropdown.contains(e.target)) {
+    dropdown.classList.remove("show");
+    btn.classList.remove("open");
+    document.getElementById("countryArrow").textContent = "▼";
+  }
+
+  if (loginView.style.display !== "none") {
+    const isInsideInput = e.target.closest(".input-box");
+    const isLoginButton = e.target.closest("button");
+    const isOptionArea = e.target.closest(".options");
+
+    if (!isInsideInput && !isLoginButton && !isOptionArea) {
+      clearLoginErrors();
+    }
+  }
 });
 
-// ✅ 비밀번호 변경 화면 생성
-function showResetPassword() {
-  document.getElementById("findView").innerHTML = `
-    <div class="find-title">새로운 비밀번호 설정</div>
-    <div class="find-form">
-      <input type="password" id="newPw" placeholder="새로운 비밀번호" class="find-input">
-      <br><br>
-      <input type="password" id="confirmPw" placeholder="확인" class="find-input">
-      <br><br>
-      <button onclick="resetPassword()">변경</button>
-    </div>
-  `;
-}
-
-function resetPassword() {
-  const pw1 = document.getElementById("newPw").value;
-  const pw2 = document.getElementById("confirmPw").value;
-
-  if (pw1 !== "" && pw1 === pw2) {
-    currentPassword = pw1;
-    showLoginView();
-
-    setTimeout(() => {
-      let msg = document.createElement("div");
-      msg.style.color = "gray";
-      msg.style.textAlign = "center";
-      msg.style.marginTop = "8px";
-      msg.textContent = "비밀번호가 변경되었습니다.";
-      document.querySelector(".container").appendChild(msg);
-    }, 100);
-  }
-}
-
-// ✅ 기존 확인 버튼 수정
-function validateFindForm() {
-  let valid = currentTab === "phone" ? validatePhoneForm() : validateEmailForm();
-
-  if (!valid) return;
-
-  let inputCode = currentTab === "phone"
-    ? document.getElementById("phoneVerifyInput").value
-    : document.getElementById("emailVerifyInput").value;
-
-  if (inputCode === tempCode && inputCode !== "") {
-    showResetPassword();
-  } else {
-    document.getElementById("globalError").classList.add("show");
-  }
-}
+window.onload = () => {
+  const text = document.querySelector(".title-text");
+  const logo = document.getElementById("logoImg");
+  const width = text.offsetWidth;
+  logo.style.width = (width * 1.15) + "px";
+};
 </script>
-
 
 </body>
 </html>
