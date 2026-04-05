@@ -14,6 +14,12 @@
 </head>
 
 <style>
+
+.input-box input,
+button {
+  box-sizing: border-box;
+}
+  
 body {
   margin: 0;
   background: #f5f6f7;
@@ -26,11 +32,11 @@ body {
   padding: 20px 0;     /* 추가 */
 }
 
-
 /* 카드 */
 .container {
   width: 100%;        /* 변경 */
   max-width: 430px;
+  box-sizing: border-box;
   background: white;
   padding: 56px 32px 46px 32px;
   border-radius: 12px;
@@ -824,7 +830,7 @@ button:hover {
 </div>
 
 <div class="find-footer-link" id="findHelp" style="display:none;">
-  비밀번호를 찾을 수 없으신가요? <span>헬프센터 바로가기</span>
+  비밀번호를 찾을 수 없으신가요? <span onclick="openHelp()">헬프센터 바로가기</span>
 </div>
 
 <div class="copyright">
@@ -1045,6 +1051,11 @@ function validatePhoneForm() {
     addErrorBorder(document.getElementById("firstNameInput"));
     showError("nameError", "성/이름을 입력해 주세요.");
     valid = false;
+  } else if (!isValidName(lastName) || !isValidName(firstName)) {
+    addErrorBorder(document.getElementById("lastNameInput"));
+    addErrorBorder(document.getElementById("firstNameInput"));
+    showError("nameError", "이름은 한글 또는 영어만 입력 가능합니다.");
+    valid = false;
   }
 
   if (phone === "") {
@@ -1102,6 +1113,17 @@ function validateFindForm() {
   }
 }
 
+function openHelp() {
+  window.open(
+    "https://help.worksmobile.com/ko/faqs/?utm_source=lw&utm_medium=Admin&utm_campaign=lw-login-pwfind#forget-id-and-password",
+    "_blank"
+  );
+}
+
+function isValidName(name) {
+  return /^[가-힣a-zA-Z]+$/.test(name);
+}
+  
 function toggleCountryDropdown(event) {
   event.stopPropagation();
   const dropdown = document.getElementById("countryDropdown");
