@@ -73,16 +73,27 @@ body {
   flex-direction: column;
 }
 
-.input-box input {
+.login-btn {
   width: 95%;
   height: 46px;
-  padding: 0 46px 0 14px;
+
+  padding: 0 46px 0 14px;  /* 🔥 핵심 수정 */
+
+  margin: 22px auto 0 auto;
+
+  background: #1f6feb;
+  border: none;
+  color: white;
+
   border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
+
+  display: block;
+  cursor: pointer;
+
   box-sizing: border-box;
-  margin: 0 auto;
-  line-height: 46px;
+  -webkit-tap-highlight-color: transparent;
 }
 
 #pw.password-mode {
@@ -145,7 +156,7 @@ body {
 
 /*로그인 버튼 */
 .login-btn {
-  width: 95%;
+  width: calc(95%);
   padding: 14px;
   margin-top: 22px;
   background: #1f6feb;
@@ -155,9 +166,9 @@ body {
   font-size: 16px;
   font-weight: 600;
   display: block;
-  margin-left: auto;
-  margin-right: auto;
+  margin: 22px auto 0 auto;
   cursor: pointer;
+  box-sizing: border-box;
 
   -webkit-tap-highlight-color: transparent;
 }
@@ -656,6 +667,7 @@ button:hover {
     <span class="label">로그인 ID</span>
     <span class="domain">@gne.go.kr</span>
     <div class="error-text" id="loginIdError"><span class="error-icon">!</span><span>ID를 입력해주세요.</span></div>
+    <button class="login-btn" onclick="validateLogin()">로그인</button>
   </div>
 
   <div class="input-box">
@@ -685,7 +697,6 @@ button:hover {
     <div class="error-text" id="loginPwError"><span class="error-icon">!</span><span>비밀번호를 입력해주세요.</span></div>
   </div>
 
-  <button class="login-btn" onclick="validateLogin()">로그인</button>
 
   <div class="options">
     <div class="option-row">
