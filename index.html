@@ -14,6 +14,14 @@
 <style>
   
 .input-box input {
+  width: 100%;
+  height: 48px;
+  padding: 0 46px 0 18px;
+
+  border: 1px solid #ddd;
+  border-radius: 10px;
+
+  font-size: 15px;
   box-sizing: border-box;
 }
   
@@ -65,6 +73,7 @@ body {
 
 /* 입력 박스 */
 .input-box {
+  width: 100%;
   position: relative;
   margin-bottom: 12px;
   display: block;   /* ← 이거 한 줄이 핵심 */
@@ -73,9 +82,6 @@ body {
 .login-btn {
   width: 100%;
   height: 46px;
-
-  padding: 0 46px 0 14px;  /* 🔥 핵심 수정 */
-
   margin: 22px 0 0 0;
 
   background: #1f6feb;
@@ -151,24 +157,6 @@ body {
   pointer-events: none;
 }
 
-/*로그인 버튼 */
-.login-btn {
-  width: calc(95%);
-  padding: 14px;
-  margin-top: 22px;
-  background: #1f6feb;
-  border: none;
-  color: white;
-  border-radius: 8px;
-  font-size: 16px;
-  font-weight: 600;
-  display: block;
-  margin: 22px auto 0 auto;
-  cursor: pointer;
-  box-sizing: border-box;
-
-  -webkit-tap-highlight-color: transparent;
-}
 
 button:hover {
   background: #1a5ed8;
@@ -669,8 +657,9 @@ button:hover {
     <span class="label">로그인 ID</span>
     <span class="domain">@gne.go.kr</span>
     <div class="error-text" id="loginIdError"><span class="error-icon">!</span><span>ID를 입력해주세요.</span></div>
-    <button class="login-btn" onclick="validateLogin()">로그인</button>
   </div>
+
+  <button class="login-btn" onclick="validateLogin()">로그인</button>
 
   <div class="input-box">
     <input type="password" id="pw" class="password-mode" placeholder=" ">
