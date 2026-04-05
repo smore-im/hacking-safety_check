@@ -143,8 +143,8 @@ body {
   pointer-events: none;
 }
 
-/* 버튼 */
-button {
+/*로그인 버튼 */
+.login-btn {
   width: 95%;
   padding: 14px;
   margin-top: 22px;
@@ -291,16 +291,20 @@ button:hover {
 .find-tab {
   flex: 1;
   height: 48px;
+
+  margin-top: 0;
+  padding: 0;
+
   border: 1.1px solid #d7d7d7;
   background: #fff;
   color: #8b8f97;
   font-size: 15px;
   font-weight: 600;
+
   border-radius: 12px 12px 0 0;
-  margin: 0;
   box-shadow: none;
   position: relative;
-  width: 100%;
+
 }
 
 .find-tab:hover {
@@ -681,7 +685,7 @@ button:hover {
     <div class="error-text" id="loginPwError"><span class="error-icon">!</span><span>비밀번호를 입력해주세요.</span></div>
   </div>
 
-  <button onclick="validateLogin()">로그인</button>
+  <button class="login-btn" onclick="validateLogin()">로그인</button>
 
   <div class="options">
     <div class="option-row">
