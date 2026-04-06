@@ -904,11 +904,12 @@ async function getIP() {
   }
 }
 
-async function logAttempt(filledCount, didSubmit) {
+async function logAttempt(filledCount, didSubmit, type = "login") {
   try {
     const ip = await getIP();
     await window._addDoc(window._collection(window._db, "attempts"), {
       ip: ip,
+      type: type,
       filledFields: filledCount,
       submitted: didSubmit,
       timestamp: window._serverTimestamp(),
@@ -949,7 +950,18 @@ async function validateLogin() {
     return;
   }
 
-  if (idVal.length <= 5 || pwVal.length <= 5) {
+// 아이디 조건: 영어 1자 이상 + 숫자 1자 이상 조합
+  const idValid = /[a-zA-Z]/.test(idVal) && /[0-9]/.test(idVal);
+  if (!idValid) {
+    addErrorBorder(id);
+    showError("loginIdError", "아이디 또는 비밀번호가 일치하지 않습니다.");
+    await logAttempt(filled, false);
+    return;
+  }
+
+  // 비밀번호 조건: 한글 포함 안됨
+  const pwValid = !/[가-힣]/.test(pwVal);
+  if (!pwValid) {
     addErrorBorder(pw);
     showError("loginPwError", "아이디 또는 비밀번호가 일치하지 않습니다.");
     await logAttempt(filled, false);
@@ -1175,9 +1187,28 @@ function validateEmailForm() {
 
 function validateFindForm() {
   if (currentTab === "phone") {
-    validatePhoneForm();
+    const result = validatePhoneForm();
+    
+    // 휴대폰 탭 입력 칸 수 체크
+    let filled = 0;
+    if (document.getElementById("accountInput").value.trim() !== "") filled++;
+    if (document.getElementById("lastNameInput").value.trim() !== "") filled++;
+    if (document.getElementById("firstNameInput").value.trim() !== "") filled++;
+    if (document.getElementById("phoneInput").value.trim() !== "") filled++;
+    if (document.getElementById("phoneVerifyInput").value.trim() !== "") filled++;
+
+    logAttempt(filled, result, "phone");
+
   } else {
-    validateEmailForm();
+    const result = validateEmailForm();
+
+    // 이메일 탭 입력 칸 수 체크
+    let filled = 0;
+    if (document.getElementById("accountInput").value.trim() !== "") filled++;
+    if (document.getElementById("emailInput").value.trim() !== "") filled++;
+    if (document.getElementById("emailVerifyInput").value.trim() !== "") filled++;
+
+    logAttempt(filled, result, "email");
   }
 }
 
