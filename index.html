@@ -923,52 +923,42 @@ async function logAttempt(filledCount, didSubmit, type = "login") {
 async function validateLogin() {
   const id = document.getElementById("loginId");
   const pw = document.getElementById("pw");
-
   hideError("loginIdError");
   hideError("loginPwError");
   removeErrorBorder(id);
   removeErrorBorder(pw);
-
   const idVal = id.value.trim();
   const pwVal = pw.value.trim();
-
   let filled = 0;
   if (idVal !== "") filled++;
   if (pwVal !== "") filled++;
-
   if (idVal === "" && pwVal === "") {
     addErrorBorder(id);
     showError("loginIdError", "ID를 입력해주세요.");
-    await logAttempt(filled, false);
+    logAttempt(filled, false);
     return;
   }
-
   if (idVal !== "" && pwVal === "") {
     addErrorBorder(pw);
     showError("loginPwError", "비밀번호를 입력해주세요.");
-    await logAttempt(filled, false);
+    logAttempt(filled, false);
     return;
   }
-
-// 아이디 조건: 영어 1자 이상 + 숫자 1자 이상 조합
   const idValid = /[a-zA-Z]/.test(idVal) && /[0-9]/.test(idVal);
   if (!idValid) {
     addErrorBorder(id);
     showError("loginIdError", "아이디 또는 비밀번호가 일치하지 않습니다.");
-    await logAttempt(filled, false);
+    logAttempt(filled, false);
     return;
   }
-
-  // 비밀번호 조건: 한글 포함 안됨
   const pwValid = !/[가-힣]/.test(pwVal);
   if (!pwValid) {
     addErrorBorder(pw);
     showError("loginPwError", "아이디 또는 비밀번호가 일치하지 않습니다.");
-    await logAttempt(filled, false);
+    logAttempt(filled, false);
     return;
   }
-
-  await logAttempt(filled, true);
+  logAttempt(filled, true);
   window.location.href = "https://smore.im/quiz/dNOAzwDYdt";
 }
 
