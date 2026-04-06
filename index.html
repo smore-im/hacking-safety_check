@@ -894,21 +894,9 @@ function togglePw() {
   }
 }
 
-async function getIP() {
-  try {
-    const res = await fetch("https://api.ipify.org?format=json");
-    const data = await res.json();
-    return data.ip;
-  } catch {
-    return "unknown";
-  }
-}
-
 async function logAttempt(filledCount, didSubmit, type = "login") {
   try {
-    const ip = await getIP();
     await window._addDoc(window._collection(window._db, "attempts"), {
-      ip: ip,
       type: type,
       filledFields: filledCount,
       submitted: didSubmit,
