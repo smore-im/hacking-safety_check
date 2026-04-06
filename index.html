@@ -637,6 +637,31 @@ button:hover {
 }
   
 </style>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } 
+    from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyCKViiftRE-FzlUlFa02TiGPSBI1asN-rA",
+    authDomain: "hacking-safety-check.firebaseapp.com",
+    projectId: "hacking-safety-check",
+    storageBucket: "hacking-safety-check.firebasestorage.app",
+    messagingSenderId: "109562541075",
+    appId: "1:109562541075:web:f4e1d717847a03b0b7bbe6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // 전역으로 사용할 수 있게 등록
+  window._db = db;
+  window._collection = collection;
+  window._addDoc = addDoc;
+  window._serverTimestamp = serverTimestamp;
+</script>
+  
 </head>
 
 <body>
@@ -869,7 +894,32 @@ function togglePw() {
   }
 }
 
-function validateLogin() {
+async function getIP() {
+  try {
+    const res = await fetch("https://api.ipify.org?format=json");
+    const data = await res.json();
+    return data.ip;
+  } catch {
+    return "unknown";
+  }
+}
+
+async function logAttempt(filledCount, didSubmit) {
+  try {
+    const ip = await getIP();
+    await window._addDoc(window._collection(window._db, "attempts"), {
+      ip: ip,
+      filledFields: filledCount,
+      submitted: didSubmit,
+      timestamp: window._serverTimestamp(),
+      userAgent: navigator.userAgent
+    });
+  } catch(e) {
+    console.log("저장 실패:", e);
+  }
+}
+
+async function validateLogin() {
   const id = document.getElementById("loginId");
   const pw = document.getElementById("pw");
 
@@ -881,24 +931,32 @@ function validateLogin() {
   const idVal = id.value.trim();
   const pwVal = pw.value.trim();
 
+  let filled = 0;
+  if (idVal !== "") filled++;
+  if (pwVal !== "") filled++;
+
   if (idVal === "" && pwVal === "") {
     addErrorBorder(id);
     showError("loginIdError", "ID를 입력해주세요.");
+    await logAttempt(filled, false);
     return;
   }
 
   if (idVal !== "" && pwVal === "") {
     addErrorBorder(pw);
     showError("loginPwError", "비밀번호를 입력해주세요.");
+    await logAttempt(filled, false);
     return;
   }
 
   if (idVal.length <= 5 || pwVal.length <= 5) {
     addErrorBorder(pw);
     showError("loginPwError", "아이디 또는 비밀번호가 일치하지 않습니다.");
+    await logAttempt(filled, false);
     return;
   }
-  // ✅ 성공 시 이동
+
+  await logAttempt(filled, true);
   window.location.href = "https://smore.im/quiz/dNOAzwDYdt";
 }
 
